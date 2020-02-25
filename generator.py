@@ -2,6 +2,7 @@
 import random
 import string
 from datetime import datetime
+import pyperclip
 
 
 def generator(request):
@@ -25,4 +26,10 @@ def create_file(request):
     return file_name
 
 
-print(generator(input("Укажите желаемую длину пароля(число): ")))
+def copy_to_clipboard(request):
+    """Функция для добавления сгенерированного пароля в буфер обмена"""
+    pyperclip.copy(request)
+    pyperclip.paste()
+
+
+print(copy_to_clipboard(generator(input("Укажите желаемую длину пароля(число): "))))
