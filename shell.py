@@ -17,7 +17,7 @@ class PassGen:
         self.label.pack(side=TOP)
 
         """Вывод сгенерированного пароля в окне программы"""
-        self.output = Label(frame, fg='green', font='30')
+        self.output = Label(frame, fg='red', font='30')
         self.output.pack()
 
         """Кнопка для генерации пароля"""
@@ -44,7 +44,7 @@ class PassGen:
 
     def generate(self):
         """Генерация пароля"""
-        self.output.config(text=generator(6))
+        self.output.config(text=generator(6))  # По умолчанию длина пароля составляет 6 символов
 
     def save_file(self):
         """Сохранение пароля в файл"""
