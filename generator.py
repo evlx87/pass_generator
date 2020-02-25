@@ -1,10 +1,11 @@
-
+"""Импорты"""
 import random
 import string
 from datetime import datetime
 
 
 def generator(request):
+    """Функция для генерации пароля"""
     pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
     pass_len = int(request)
     new_pass = ''.join(random.choice(pass_symbols) for x in range(pass_len))
@@ -13,6 +14,7 @@ def generator(request):
 
 
 def create_file(request):
+    """Фунция для сохранения сгенерированного пароля в файл"""
     file = open('pass_dir/password_' +
                 str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) +
                 '.txt', 'tw', encoding='utf8')
