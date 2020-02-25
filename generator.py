@@ -30,6 +30,3 @@ def copy_to_clipboard(request):
     """Функция для добавления сгенерированного пароля в буфер обмена"""
     pyperclip.copy(request)
     pyperclip.paste()
-
-
-print(copy_to_clipboard(generator(input("Укажите желаемую длину пароля(число): "))))
