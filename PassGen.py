@@ -8,14 +8,14 @@ import pyperclip
 
 class Generator:
     """Основные функции генератора паролей"""
+
     def __init__(self, frame):
         self.spinbox = Spinbox(frame, from_=0, to=100)
 
-    def generator(self):
+    def gen_pass(self):
         """Функция для генерации пароля"""
         pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-        pass_len = int(self)
-        output_pass = ''.join(random.choice(pass_symbols) for x in range(pass_len))
+        output_pass = ''.join(random.choice(pass_symbols) for x in range(int(self)))
         return output_pass
 
     def create_file(self):
@@ -35,10 +35,12 @@ class Generator:
 
     @classmethod
     def spinbox(cls, frame):
-        return Spinbox(frame, from_=0, to=20)
+        """Функция выбора длины пароля"""
+        spin = Spinbox(frame, from_=0, to=20)
+        return spin
 
 
-class PassGen:
+class Shell:
     """Графическая оболочка программы генератора паролей"""
 
     def __init__(self, main_window):
@@ -52,7 +54,6 @@ class PassGen:
 
         """Выбор длины пароля"""
         self.spin = Generator.spinbox(frame)
-        # self.spin = Spinbox(frame, from_=0, to=100)
         self.spin.pack(fill=BOTH)
 
         """Вывод сгенерированного пароля в окне программы"""
@@ -83,8 +84,7 @@ class PassGen:
 
     def generate(self):
         """Генерация пароля"""
-        self.output.config(
-            text=Generator.generator())  # По умолчанию длина пароля составляет 6 символов
+        self.output.config(text=Generator.gen_pass(self.spin.get))
 
     def save_file(self):
         """Сохранение пароля в файл"""
@@ -99,5 +99,5 @@ WINDOW = Tk()
 WINDOW.title("PassGen")
 WINDOW.geometry('250x180')
 WINDOW.resizable(width=False, height=False)
-PassGen(WINDOW)
+Shell(WINDOW)
 WINDOW.mainloop()
