@@ -1,41 +1,45 @@
-"""Импорт используемых модулей tkinter и функций генератора паролей"""
+"""Программа - генератор паролей с графической оболочкой"""
 from tkinter import Frame, Label, TOP, Button, BOTH, Tk, Spinbox
-
-# from generator import generator, create_file, copy_to_clipboard
-
 import random
 import string
 from datetime import datetime
 import pyperclip
 
 
-def generator(request):
-    """Функция для генерации пароля"""
-    pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-    pass_len = int(request)
-    output_pass = ''.join(random.choice(pass_symbols) for x in range(pass_len))
-    return output_pass
+class Generator:
+    """Основные функции генератора паролей"""
+    def __init__(self, frame):
+        self.spinbox = Spinbox(frame, from_=0, to=100)
 
+    def generator(self):
+        """Функция для генерации пароля"""
+        pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
+        pass_len = int(self)
+        output_pass = ''.join(random.choice(pass_symbols) for x in range(pass_len))
+        return output_pass
 
-def create_file(request):
-    """Фунция для сохранения сгенерированного пароля в файл"""
-    file = open('pass_dir/password_' +
-                str(datetime.now().strftime('%Y_%m_%d_%H_%M')) +
-                '.txt', 'tw', encoding='utf8')
-    input_data = str(request)
-    file.write(input_data)
-    file_name = str(file)
-    return file_name
+    def create_file(self):
+        """Фунция для сохранения сгенерированного пароля в файл"""
+        file = open('pass_dir/password_' +
+                    str(datetime.now().strftime('%Y_%m_%d_%H_%M')) +
+                    '.txt', 'tw', encoding='utf8')
+        input_data = str(self)
+        file.write(input_data)
+        file_name = str(file)
+        return file_name
 
+    def copy_to_clipboard(self):
+        """Функция для добавления сгенерированного пароля в буфер обмена"""
+        pyperclip.copy(self)
+        pyperclip.paste()
 
-def copy_to_clipboard(request):
-    """Функция для добавления сгенерированного пароля в буфер обмена"""
-    pyperclip.copy(request)
-    pyperclip.paste()
+    @classmethod
+    def spinbox(cls, frame):
+        return Spinbox(frame, from_=0, to=20)
 
 
 class PassGen:
-    """Функции оболочки генератора паролей (программы)"""
+    """Графическая оболочка программы генератора паролей"""
 
     def __init__(self, main_window):
         frame = Frame(main_window)
@@ -47,7 +51,8 @@ class PassGen:
         self.label.pack(side=TOP)
 
         """Выбор длины пароля"""
-        self.spin = Spinbox(frame, from_=0, to=100)
+        self.spin = Generator.spinbox(frame)
+        # self.spin = Spinbox(frame, from_=0, to=100)
         self.spin.pack(fill=BOTH)
 
         """Вывод сгенерированного пароля в окне программы"""
@@ -79,16 +84,15 @@ class PassGen:
     def generate(self):
         """Генерация пароля"""
         self.output.config(
-            text=generator(
-                self.spin))  # По умолчанию длина пароля составляет 6 символов
+            text=Generator.generator())  # По умолчанию длина пароля составляет 6 символов
 
     def save_file(self):
         """Сохранение пароля в файл"""
-        self.output.config(text=create_file())
+        self.output.config(text=Generator.create_file())
 
     def copy_clip(self):
         """Копирование пароля в буфер обмена"""
-        self.output.config(text=copy_to_clipboard())
+        self.output.config(text=Generator.copy_to_clipboard())
 
 
 WINDOW = Tk()
