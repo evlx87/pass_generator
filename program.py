@@ -5,39 +5,37 @@ import string
 from datetime import datetime
 import pyperclip
 
+spin = ''
 
-class Generator:
-    """Основные функции генератора паролей"""
 
-    def __init__(self, frame):
-        self.spinbox = Spinbox(frame, from_=0, to=100)
+def gen_pass(self):
+    """Функция для генерации пароля"""
+    pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
+    output_pass = ''.join(random.choice(pass_symbols) for x in range(int(self)))
+    return output_pass
 
-    def gen_pass(self):
-        """Функция для генерации пароля"""
-        pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-        output_pass = ''.join(random.choice(pass_symbols) for x in range(int(self)))
-        return output_pass
 
-    def create_file(self):
-        """Фунция для сохранения сгенерированного пароля в файл"""
-        file = open('pass_dir/password_' +
-                    str(datetime.now().strftime('%Y_%m_%d_%H_%M')) +
-                    '.txt', 'tw', encoding='utf8')
-        input_data = str(self)
-        file.write(input_data)
-        file_name = str(file)
-        return file_name
+def create_file(self):
+    """Фунция для сохранения сгенерированного пароля в файл"""
+    file = open('pass_dir/password_' +
+                str(datetime.now().strftime('%Y_%m_%d_%H_%M')) +
+                '.txt', 'tw', encoding='utf8')
+    input_data = str(self)
+    file.write(input_data)
+    file_name = str(file)
+    return file_name
 
-    def copy_to_clipboard(self):
-        """Функция для добавления сгенерированного пароля в буфер обмена"""
-        pyperclip.copy(self)
-        pyperclip.paste()
 
-    @classmethod
-    def spinbox(cls, frame):
-        """Функция выбора длины пароля"""
-        spin = Spinbox(frame, from_=0, to=20)
-        return spin
+def copy_to_clipboard(self):
+    """Функция для добавления сгенерированного пароля в буфер обмена"""
+    pyperclip.copy(self)
+    pyperclip.paste()
+
+
+def spinbox(frame):
+    """Функция выбора длины пароля"""
+    spin = Spinbox(frame, from_=0, to=20)
+    return spin
 
 
 class Shell:
@@ -53,7 +51,7 @@ class Shell:
         self.label.pack(side=TOP)
 
         """Выбор длины пароля"""
-        self.spin = Generator.spinbox(frame)
+        self.spin = spinbox(frame)
         self.spin.pack(fill=BOTH)
 
         """Вывод сгенерированного пароля в окне программы"""
@@ -84,15 +82,15 @@ class Shell:
 
     def generate(self):
         """Генерация пароля"""
-        self.output.config(text=Generator.gen_pass(self.spin.get))
+        self.output.config(text=gen_pass(self.spin.get()))
 
     def save_file(self):
         """Сохранение пароля в файл"""
-        self.output.config(text=Generator.create_file())
+        self.output.config(text=create_file())
 
     def copy_clip(self):
         """Копирование пароля в буфер обмена"""
-        self.output.config(text=Generator.copy_to_clipboard())
+        self.output.config(text=copy_to_clipboard())
 
 
 WINDOW = Tk()
