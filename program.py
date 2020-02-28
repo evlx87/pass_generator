@@ -32,7 +32,7 @@ def copy_to_clipboard(request):
 
 def spinbox(frame):
     """Функция выбора длины пароля"""
-    spin = Spinbox(frame, from_=0, to=20)
+    spin = Spinbox(frame, from_=5, to=20)
     return spin
 
 
@@ -54,7 +54,7 @@ class Shell:
 
         """Вывод сгенерированного пароля в окне программы"""
         self.output = Label(frame, fg='red', font='30')
-        self.output.pack()
+        self.output.pack(fill=BOTH)
 
         """Кнопка для генерации пароля"""
         self.generate_btn = Button(
