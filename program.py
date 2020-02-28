@@ -8,8 +8,9 @@ import pyperclip
 
 def gen_pass(request):
     """Функция для генерации пароля"""
-    pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-    output_pass = ''.join(random.choice(pass_symbols) for x in range(int(request)))
+    pass_symbols = string.ascii_letters + string.digits + '!@#$%&*?~'
+    # можно использовать string.punctuation, но не все символу нужны для пароля
+    output_pass = ''.join(random.choice(pass_symbols) for _ in range(int(request)))
     return output_pass
 
 
