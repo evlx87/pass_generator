@@ -5,30 +5,28 @@ import string
 from datetime import datetime
 import pyperclip
 
-spin = ''
 
-
-def gen_pass(self):
+def gen_pass(request):
     """Функция для генерации пароля"""
     pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-    output_pass = ''.join(random.choice(pass_symbols) for x in range(int(self)))
+    output_pass = ''.join(random.choice(pass_symbols) for x in range(int(request)))
     return output_pass
 
 
-def create_file(self):
+def create_file(request):
     """Фунция для сохранения сгенерированного пароля в файл"""
     file = open('pass_dir/password_' +
                 str(datetime.now().strftime('%Y_%m_%d_%H_%M')) +
                 '.txt', 'tw', encoding='utf8')
-    input_data = str(self)
+    input_data = str(request)
     file.write(input_data)
     file_name = str(file)
     return file_name
 
 
-def copy_to_clipboard(self):
+def copy_to_clipboard(request):
     """Функция для добавления сгенерированного пароля в буфер обмена"""
-    pyperclip.copy(self)
+    pyperclip.copy(request)
     pyperclip.paste()
 
 
@@ -86,11 +84,11 @@ class Shell:
 
     def save_file(self):
         """Сохранение пароля в файл"""
-        self.output.config(text=create_file())
+        self.output.config(text=create_file(self.output['text']))
 
     def copy_clip(self):
         """Копирование пароля в буфер обмена"""
-        self.output.config(text=copy_to_clipboard())
+        self.output.config(text=copy_to_clipboard(self.output['text']))
 
 
 WINDOW = Tk()
