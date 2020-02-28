@@ -84,11 +84,11 @@ class Shell:
 
     def save_file(self):
         """Сохранение пароля в файл"""
-        self.output.config(text=create_file())
+        self.output.config(text=create_file(self.output['text']))
 
     def copy_clip(self):
         """Копирование пароля в буфер обмена"""
-        self.output.config(text=copy_to_clipboard())
+        self.output.config(text=copy_to_clipboard(self.output['text']))
 
 
 WINDOW = Tk()
