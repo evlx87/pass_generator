@@ -9,14 +9,13 @@ from tkinter import Frame, Label, TOP, Button, BOTH, Tk, Spinbox
 def gen_pass(request):
     """Функция для генерации пароля"""
     pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-    output_pass = ''.join(random.choice(pass_symbols) for _ in range(int(request)))
-    return output_pass
+    return ''.join(random.choice(pass_symbols) for _ in range(int(request)))
 
 
 def create_file(request):
     """Функция для сохранения сгенерированного пароля в файл"""
     file_name = f'pass_dir/password_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.txt'
-    with open(file_name, 'tw', encoding='utf8') as file:
+    with open(file_name, 'w', encoding='utf8') as file:
         file.write(request)
     return file_name
 
@@ -25,12 +24,6 @@ def copy_to_clipboard(request):
     """Функция для добавления сгенерированного пароля в буфер обмена"""
     pyperclip.copy(request)
     pyperclip.paste()
-
-
-def spinbox(frame):
-    """Функция выбора длины пароля"""
-    spin = Spinbox(frame, from_=0, to=20)
-    return spin
 
 
 class Shell:
@@ -45,7 +38,7 @@ class Shell:
             text="Укажите длину пароля и \nвыберите необходимое действие")
         self.label.pack(side=TOP)
         """Выбор длины пароля"""
-        self.spin = spinbox(self.frame)
+        self.spin = Spinbox(main_window, from_=0, to=20)
         self.spin.pack(fill=BOTH)
         """Вывод сгенерированного пароля в окне программы"""
         self.output = Label(self.frame, fg='red', font='30')
