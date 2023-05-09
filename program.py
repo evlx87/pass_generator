@@ -1,26 +1,23 @@
 """Программа - генератор паролей с графической оболочкой"""
-from tkinter import Frame, Label, TOP, Button, BOTH, Tk, Spinbox
 import random
 import string
 from datetime import datetime
 import pyperclip
+from tkinter import Frame, Label, TOP, Button, BOTH, Tk, Spinbox
 
 
 def gen_pass(request):
     """Функция для генерации пароля"""
     pass_symbols = string.ascii_letters + string.digits + '!@#$%&'
-    output_pass = ''.join(random.choice(pass_symbols) for x in range(int(request)))
+    output_pass = ''.join(random.choice(pass_symbols) for _ in range(int(request)))
     return output_pass
 
 
 def create_file(request):
-    """Фунция для сохранения сгенерированного пароля в файл"""
-    file = open('pass_dir/password_' +
-                str(datetime.now().strftime('%Y_%m_%d_%H_%M')) +
-                '.txt', 'tw', encoding='utf8')
-    input_data = str(request)
-    file.write(input_data)
-    file_name = str(file)
+    """Функция для сохранения сгенерированного пароля в файл"""
+    file_name = f'pass_dir/password_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.txt'
+    with open(file_name, 'tw', encoding='utf8') as file:
+        file.write(request)
     return file_name
 
 
@@ -40,25 +37,22 @@ class Shell:
     """Графическая оболочка программы генератора паролей"""
 
     def __init__(self, main_window):
-        frame = Frame(main_window)
-        frame.pack()
-
+        self.frame = Frame(main_window)
+        self.frame.pack()
         """Информационный текст в окне программы"""
         self.label = Label(
-            frame, text="Укажите длину пароля и \nвыберите необходимое действие")
+            self.frame,
+            text="Укажите длину пароля и \nвыберите необходимое действие")
         self.label.pack(side=TOP)
-
         """Выбор длины пароля"""
-        self.spin = spinbox(frame)
+        self.spin = spinbox(self.frame)
         self.spin.pack(fill=BOTH)
-
         """Вывод сгенерированного пароля в окне программы"""
-        self.output = Label(frame, fg='red', font='30')
+        self.output = Label(self.frame, fg='red', font='30')
         self.output.pack()
-
         """Кнопка для генерации пароля"""
         self.generate_btn = Button(
-            frame,
+            self.frame,
             text="Сгенерировать новый пароль",
             fg='green',
             command=self.generate)
@@ -66,14 +60,14 @@ class Shell:
 
         """Кнопка для сохранения пароля в файл"""
         self.save_btn = Button(
-            frame,
+            self.frame,
             text="Сохранить в файл",
             command=self.save_file)
         self.save_btn.pack(fill=BOTH)
 
         """Кнопка для копирования сгенерированного пароля в буфер обмена"""
         self.copy_btn = Button(
-            frame,
+            self.frame,
             text="Скопировать пароль",
             command=self.copy_clip)
         self.copy_btn.pack(fill=BOTH)
