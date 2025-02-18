@@ -19,8 +19,26 @@ def gen_pass(length):
     if length < 1:
         raise ValueError("Длина пароля должна быть больше 0")
 
-    pass_symbols = string.ascii_letters + string.digits + '!@#$%&*()_+-=[]{}|;:,./<>?'
-    return ''.join(secrets.choice(pass_symbols) for _ in range(length))
+    # Наборы символов
+    letters = string.ascii_letters
+    digits = string.digits
+    special_chars = '!@#$%&*()_+-=[]{}|;:,./<>?'
+    all_chars = letters + digits + special_chars
+
+    # Генерируем обязательные символы
+    password = []
+    password.append(secrets.choice(letters))  # Одна буква
+    password.append(secrets.choice(digits))  # Одна цифра
+    password.append(secrets.choice(special_chars))  # Один спецсимвол
+
+    # Генерируем остальные символы
+    for _ in range(length - 3):
+        password.append(secrets.choice(all_chars))
+
+    # Перемешиваем символы для большей случайности
+    random.shuffle(password)
+
+    return ''.join(password)
 
 
 # Функция для сохранения сгенерированного пароля в файл
@@ -56,8 +74,9 @@ class Shell:
     def __init__(self, main_window, original_height):
         self.generated_password = ''  # Переменная для хранения сгенерированного пароля
         self.original_height = original_height  # Передача начальной высоты окна
-        self.expanded_height = 320
+        self.expanded_height = 310
         self.window_height = self.original_height
+        self.main_window = main_window  # Сохраняем ссылку на главное окно
 
         frame = Frame(main_window)
         frame.pack()
@@ -68,7 +87,7 @@ class Shell:
         button_width = 28  # Ширина кнопок
 
         # Поле для выбора длины пароля
-        self.spin = Spinbox(main_window, from_=6, to=20, width=button_width)
+        self.spin = Spinbox(main_window, from_=6, to=50, width=button_width)
         self.spin.pack(pady=10)
 
         self.password_label = Label(frame, fg='black', font='Helvetica 14 bold')
@@ -133,7 +152,7 @@ class Shell:
             self.resize_window()
 
             # Возвращаемся к первоначальной высоте окна через 3 секунды
-            self.after(3000, lambda: self.set_original_size())
+            self.main_window.after(3000, lambda: self.set_original_size())
         else:
             self.status_label.config(text="Сначала сгенерируйте пароль!")
 
@@ -142,7 +161,7 @@ class Shell:
         self.resize_window()
 
     def resize_window(self):
-        self.master.geometry(f'300x{self.window_height}')
+        self.main_window.geometry(f'300x{self.window_height}')
 
     def copy_password(self):
         """
