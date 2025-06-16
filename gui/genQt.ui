@@ -75,7 +75,7 @@
     <string>Длина пароля</string>
    </property>
   </widget>
-  <widget class="QWidget" name="widget" native="true">
+  <widget class="QLabel" name="password_label">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -85,8 +85,16 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(173, 173, 173);
-font: 14pt &quot;MS Shell Dlg 2&quot;;</string>
+    <string notr="true">background-color: rgb(173, 173, 173); font: 14pt "MS Shell Dlg 2";</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>
