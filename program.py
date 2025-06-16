@@ -1,13 +1,14 @@
-import random
-import string
+import logging
 import os
-from datetime import datetime
+import random
 import secrets
+import string
+import sys
+from datetime import datetime
+
 import pyperclip
 from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QApplication
-import sys
-import logging
+from PyQt5.QtWidgets import QDialog, QApplication, QMessageBox
 
 # Настройка логирования
 os.makedirs('logs', exist_ok=True)  # Создаём папку для логов
@@ -27,44 +28,57 @@ class PasswordGenerator:
     Класс для генерации паролей.
     """
 
-    def __init__(self, length):
+    def __init__(
+            self,
+            length,
+            use_letters=True,
+            use_digits=True,
+            use_special=True):
         self.length = length
+        self.use_letters = use_letters
+        self.use_digits = use_digits
+        self.use_special = use_special
         self.generated_password = ''
         self.password_saved = False
 
     def generate_password(self):
         """
-        Генерирует случайный пароль заданной длины.
+        Генерирует случайный пароль заданной длины с учётом выбранных типов символов.
         :return: Сгенерированный пароль
         """
         if self.length < 1:
             logger.error("Длина пароля должна быть больше 0")
             raise ValueError("Длина пароля должна быть больше 0")
 
-        letters = string.ascii_letters
-        digits = string.digits
-        special_chars = '!@#$%&*()_+-=[]{}|;:,./<>?'
+        # Формируем набор символов
+        letters = string.ascii_letters if self.use_letters else ''
+        digits = string.digits if self.use_digits else ''
+        special_chars = '!@#$%&*()_+-=[]{}|;:,./<>?' if self.use_special else ''
         all_chars = letters + digits + special_chars
 
-        password = []
-        password.append(secrets.choice(letters))
-        password.append(secrets.choice(digits))
-        password.append(secrets.choice(special_chars))
+        if not all_chars:
+            logger.error("Не выбран ни один тип символов для генерации пароля")
+            raise ValueError("Не выбран ни один тип символов")
 
-        for _ in range(self.length - 3):
+        # Генерируем пароль
+        password = []
+        # Добавляем по одному символу каждого типа, если он включён
+        if self.use_letters:
+            password.append(secrets.choice(letters))
+        if self.use_digits:
+            password.append(secrets.choice(digits))
+        if self.use_special:
+            password.append(secrets.choice(special_chars))
+
+        # Заполняем оставшуюся длину случайными символами
+        for _ in range(self.length - len(password)):
             password.append(secrets.choice(all_chars))
 
         random.shuffle(password)
-        generated_passwords = set()
-        while True:
-            password_str = ''.join(password)
-            if password_str not in generated_passwords:
-                generated_passwords.add(password_str)
-                self.generated_password = password_str
-                logger.info(
-                    f"Сгенерирован пароль длиной {self.length}: {password_str}")
-                return password_str
-            random.shuffle(password)
+        self.generated_password = ''.join(password)
+        logger.info(
+            f"Сгенерирован пароль длиной {self.length}: {self.generated_password}")
+        return self.generated_password
 
     def is_password_saved(self):
         """
@@ -119,7 +133,12 @@ class PasswordGeneratorUI(QDialog):
     def __init__(self):
         super().__init__()
         # Загружаем UI из файла
-        uic.loadUi('gui/genQt.ui', self)
+        try:
+            uic.loadUi('gui/genQt.ui', self)
+            logger.info("UI-файл успешно загружен")
+        except Exception as e:
+            logger.error(f"Ошибка загрузки UI-файла: {str(e)}")
+            raise
         logger.info("Инициализация графического интерфейса")
 
         # Инициализация объектов
@@ -136,20 +155,40 @@ class PasswordGeneratorUI(QDialog):
         """
         try:
             length = self.spinBox.value()
-            if length < 3:
+            use_letters = self.checkBox_letters.isChecked()
+            use_digits = self.checkBox_digits.isChecked()
+            use_special = self.checkBox_special.isChecked()
+
+            if not (use_letters or use_digits or use_special):
                 self.password_label.setText(
-                    "Длина пароля должна быть не менее 3!")
-                logger.warning("Попытка генерации пароля с длиной менее 3")
+                    "Выберите хотя бы один тип символов!")
+                logger.warning(
+                    "Попытка генерации пароля без выбранных типов символов")
+                QMessageBox.warning(
+                    self, "Ошибка", "Выберите хотя бы один тип символов!")
                 return
-            self.password_generator = PasswordGenerator(length)
+
+            if length < (use_letters + use_digits + use_special):
+                self.password_label.setText(
+                    "Длина пароля слишком мала для выбранных типов!")
+                logger.warning(
+                    f"Попытка генерации пароля с длиной {length}, недостаточной для {use_letters + use_digits + use_special} типов символов")
+                QMessageBox.warning(
+                    self,
+                    "Ошибка",
+                    "Длина пароля должна быть не менее количества выбранных типов символов!")
+                return
+
+            self.password_generator = PasswordGenerator(
+                length, use_letters, use_digits, use_special)
             password = self.password_generator.generate_password()
             self.password_label.setText(password)
             self.password_generator.set_password_saved(False)
             logger.info("Пароль успешно отображён в интерфейсе")
         except ValueError as e:
-            self.password_label.setText(
-                "Длина пароля должна быть положительным числом!")
+            self.password_label.setText(str(e))
             logger.error(f"Ошибка генерации пароля: {str(e)}")
+            QMessageBox.critical(self, "Ошибка", str(e))
 
     def save_password(self):
         """
@@ -165,12 +204,17 @@ class PasswordGeneratorUI(QDialog):
                     f"Пароль сохранен в файл:\n{file_name}")
                 self.password_generator.set_password_saved(True)
                 logger.info("Пароль успешно сохранён")
+                QMessageBox.information(
+                    self, "Успех", f"Пароль сохранён в файл: {file_name}")
             except Exception as e:
                 self.password_label.setText("Ошибка при сохранении файла!")
                 logger.error(f"Ошибка при сохранении пароля: {str(e)}")
+                QMessageBox.critical(
+                    self, "Ошибка", f"Ошибка при сохранении файла: {str(e)}")
         else:
             self.password_label.setText("Сначала сгенерируйте пароль!")
             logger.warning("Попытка сохранить пароль без его генерации")
+            QMessageBox.warning(self, "Ошибка", "Сначала сгенерируйте пароль!")
 
     def copy_password(self):
         """
@@ -182,12 +226,17 @@ class PasswordGeneratorUI(QDialog):
                 self.password_label.setText(
                     "Пароль скопирован в буфер обмена!")
                 logger.info("Пароль скопирован в буфер обмена")
+                QMessageBox.information(
+                    self, "Успех", "Пароль скопирован в буфер обмена!")
             except Exception as e:
                 self.password_label.setText("Ошибка при копировании пароля!")
                 logger.error(f"Ошибка при копировании пароля: {str(e)}")
+                QMessageBox.critical(
+                    self, "Ошибка", f"Ошибка при копировании пароля: {str(e)}")
         else:
             self.password_label.setText("Сначала сгенерируйте пароль!")
             logger.warning("Попытка копирования пароля без его генерации")
+            QMessageBox.warning(self, "Ошибка", "Сначала сгенерируйте пароль!")
 
 
 if __name__ == "__main__":
